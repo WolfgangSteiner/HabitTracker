@@ -30,15 +30,16 @@ public class HabitTrackerDataSource
 
     public void open()
     {
-        Log.d(LOG_TAG, "Eine Referenz auf die Datenbank wird jetzt angefragt.");
+        Log.d(LOG_TAG, "Get reference to database.");
         mDatabase = mHelper.getWritableDatabase();
-        Log.d(LOG_TAG, "Datenbank-Referenz erhalten. Pfad zur Datenbank: " + mDatabase.getPath());
+        mHelper.onCreate(mDatabase);
+        Log.d(LOG_TAG, "Got reference to database. Path: " + mDatabase.getPath());
     }
 
     public void close()
     {
         mHelper.close();
-        Log.d(LOG_TAG, "Datenbank mit Hilfe des DbHelpers geschlossen.");
+        Log.d(LOG_TAG, "Database is closed by DBHelper.");
     }
 
     public Habit createHabit(String aHabitName, String aStartDate)
@@ -50,17 +51,40 @@ public class HabitTrackerDataSource
 
         long insertId = mDatabase.insert(HabitTrackerContract.HabitEntry.TABLE_NAME, null, values);
 
+        return getHabit(insertId);
+    }
+
+
+    public Cursor getCursor(long aHabitId)
+    {
         Cursor cursor = mDatabase.query(
                 HabitTrackerContract.HabitEntry.TABLE_NAME,
                 mColumns,
-                HabitTrackerContract.HabitEntry.COLUMN_NAME_ID + "=" + insertId,
+                HabitTrackerContract.HabitEntry.COLUMN_NAME_ID + "=" + aHabitId,
                 null, null, null, null);
 
         cursor.moveToFirst();
-        Habit habit = createHabitForCursor(cursor);
-        cursor.close();
+        return cursor;
+    }
 
-        return habit;
+
+    public Habit getHabit(long aHabitId)
+    {
+        return createHabitForCursor(getCursor(aHabitId));
+    }
+
+    public void updateStreak(Habit aHabit, int aStreak)
+    {
+        ContentValues cv = new ContentValues();
+        cv.put(HabitTrackerContract.HabitEntry.COLUMN_NAME_STREAK, aStreak);
+
+        mDatabase.update(
+                HabitTrackerContract.HabitEntry.TABLE_NAME,
+                cv,
+                "? = ?",
+                new String[] { HabitTrackerContract.HabitEntry.COLUMN_NAME_ID, Long.toString(aHabit.getHabitId())});
+
+        aHabit.setStreak(aStreak);
     }
 
     private Habit createHabitForCursor(Cursor cursor)
@@ -78,6 +102,14 @@ public class HabitTrackerDataSource
         Habit habit = new Habit(id, title, startDate, streak);
 
         return habit;
+    }
+
+    public void deleteAllHabits()
+    {
+        final String SQL_DELETE_ENTRIES =
+                "DELETE FROM " + HabitTrackerContract.HabitEntry.TABLE_NAME;
+
+        mDatabase.execSQL(SQL_DELETE_ENTRIES);
     }
 
 

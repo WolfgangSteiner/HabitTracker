@@ -14,19 +14,19 @@ public class HabitTrackerDbHelper extends SQLiteOpenHelper
     private static final String INTEGER_TYPE = " INTEGER";
     private static final String COMMA_SEP = ",";
     private static final String SQL_CREATE_ENTRIES =
-            "CREATE TABLE " + HabitTrackerContract.HabitEntry.TABLE_NAME + " (" +
+            "CREATE TABLE IF NOT EXISTS " + HabitTrackerContract.HabitEntry.TABLE_NAME + " (" +
                     HabitTrackerContract.HabitEntry.COLUMN_NAME_ID + " INTEGER PRIMARY KEY," +
                     HabitTrackerContract.HabitEntry.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
                     HabitTrackerContract.HabitEntry.COLUMN_NAME_STARTINGDATE + TEXT_TYPE + COMMA_SEP +
                     HabitTrackerContract.HabitEntry.COLUMN_NAME_STREAK + INTEGER_TYPE + " )";
 
-    private static final String SQL_DELETE_ENTRIES =
-            "DROP TABLE IF EXISTS " + HabitTrackerContract.HabitEntry.TABLE_NAME;
+    private Context mContext;
 
 
-    public HabitTrackerDbHelper(Context context)
+    public HabitTrackerDbHelper(Context aContext)
     {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(aContext, DATABASE_NAME, null, DATABASE_VERSION);
+        mContext = aContext;
         Log.d("HabitTrackerDbHelper", "Created database:" + getDatabaseName());
     }
 
@@ -38,7 +38,14 @@ public class HabitTrackerDbHelper extends SQLiteOpenHelper
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
+    {
+        db.execSQL("DROP TABLE IF EXISTS " + HabitTrackerContract.HabitEntry.TABLE_NAME);
+        db.execSQL(SQL_CREATE_ENTRIES);
+    }
 
+    public void deleteDatabase()
+    {
+        mContext.deleteDatabase(DATABASE_NAME);
     }
 }
