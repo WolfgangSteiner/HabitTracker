@@ -5,7 +5,7 @@ package com.example.android.habittracker;
  */
 public class Habit
 {
-    public Habit(String aTitle, String aDateString, int aStreak, long aHabitId)
+    public Habit(long aHabitId, String aTitle, String aDateString, int aStreak)
     {
         this.mTitle = aTitle;
         this.mDateString = aDateString;
@@ -17,6 +17,17 @@ public class Habit
     private String mDateString;
     private int mStreak;
     private long mHabitId;
+
+    @Override
+    public String toString()
+    {
+        return "Habit{" +
+                "mTitle='" + mTitle + '\'' +
+                ", mDateString='" + mDateString + '\'' +
+                ", mStreak=" + mStreak +
+                ", mHabitId=" + mHabitId +
+                '}';
+    }
 
     public String getTitle()
     {

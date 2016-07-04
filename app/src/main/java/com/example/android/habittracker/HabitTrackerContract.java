@@ -15,7 +15,7 @@ public class HabitTrackerContract
     public static abstract class HabitEntry implements BaseColumns
     {
         public static final String TABLE_NAME = "habit";
-        public static final String COLUMN_NAME_ENTRY_ID = "habitid";
+        public static final String COLUMN_NAME_ID = "id";
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_STARTINGDATE = "startingdate";
         public static final String COLUMN_NAME_STREAK = "streak";
